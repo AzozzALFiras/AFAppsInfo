@@ -11,4 +11,8 @@ Download images and Copy Date of App Store Apps &amp; Games
 ## Developer
 
 [Azozz ALFiras](https://twitter.com/AzozzALFiras)
+
+
+## Thx 
+
 [CrazyMind90](https://twitter.com/CrazyMind90)
