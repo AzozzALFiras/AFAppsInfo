@@ -1,4 +1,5 @@
 // By Azozz ALFiras
+// github : https://github.com/AzozzALFiras/AFAppsInfo
 // Thx @CrazyMind90
 // https://itunes.apple.com/lookup?id=389801252
 // https://itunes.apple.com/lookup?id=488106216
@@ -6,11 +7,7 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
-// AFSocial Download
 
-#import "Download/AFSocialDownloadWindow.h"
-#import "Download/DRCircularProgressView.h"
-#import "Download/AFSocialDownloadConnection.h"
 
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -108,14 +105,13 @@ UIAlertAction *Dismiss = [UIAlertAction actionWithTitle:@"Ok, Thanks" style:UIAl
 });
 }
 
+/// Sorry, the download library is private and I cannot open its source. You need to build a code to download images via the link
+
 void Download(NSString *LinkSave){
+
 NSURL * directURL = [NSURL URLWithString:LinkSave];
 NSString* title = [[directURL lastPathComponent] stringByDeletingPathExtension];
-NSString * pathSave = [NSTemporaryDirectory() stringByAppendingPathComponent:[directURL lastPathComponent]];
-AFSocialDownloadConnection* download = [[AFSocialDownloadConnection alloc] initWithURL:directURL path:pathSave];
-[download setFinished:^(AFSocialDownloadConnection* connection) {
-NSString* pathFileVideo = connection.path;
-
+NSString * pathFileVideo = [NSTemporaryDirectory() stringByAppendingPathComponent:[directURL lastPathComponent]];
 
 dispatch_async(dispatch_get_main_queue(), ^{
 
@@ -140,21 +136,6 @@ Alert(@"Save Failed!");
 });
 
 
-}];
-
-//needed to show download progress
-[download setProgress:^(AFSocialDownloadConnection* connection) {
-
-DRCircularProgressView* progressView = connection.progressWindow.progressView;
-
-progressView.progressValue = (float)((float)connection.size_down/(float)connection.size);
-
-connection.progressWindow.progressLabel.text = [NSString stringWithFormat:@"%@\n%.f%@", @"Downloading...", 100*progressView.progressValue, @"%"];
-connection.progressWindow.progressLabelMinimized.text = [NSString stringWithFormat:@"%.f%@", 100*progressView.progressValue, @"%"];
-
-}];
-
-[download start];
 }
 
 
