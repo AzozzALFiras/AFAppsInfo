@@ -116,6 +116,10 @@ NSString * pathFileVideo = [NSTemporaryDirectory() stringByAppendingPathComponen
 dispatch_async(dispatch_get_main_queue(), ^{
 
 
+
+
+// You need the azfLibrary library because the App Store does not have the validity of the images
+// // https://github.com/AzozzALFiras/azfLibrary
 BOOL isFileVideo = NO;
 
 NSURL *url = [NSURL URLWithString:[@"http://127.0.0.1:1357/" stringByAppendingPathComponent:@"cameraImport"]];
