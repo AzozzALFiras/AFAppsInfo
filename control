@@ -1,0 +1,9 @@
+Package: co.azozzalfiras.afappsinfo
+Name: AFAppsInfo
+Depends: mobilesubstrate
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Download images and Copy Date of App Store Apps & Games
+Maintainer: Azozz ALFiras
+Author: Azozz ALFiras
+Section: Tweaks
