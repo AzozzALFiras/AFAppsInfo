@@ -115,26 +115,30 @@ NSString * pathFileVideo = [NSTemporaryDirectory() stringByAppendingPathComponen
 
 dispatch_async(dispatch_get_main_queue(), ^{
 
+NSData *urlData = [NSData dataWithContentsOfURL:directURL];
 
+static bool Success;
 
+if (urlData) {
 
-// You need the azfLibrary library because the App Store does not have the validity of the images
-// // https://github.com/AzozzALFiras/azfLibrary
-BOOL isFileVideo = NO;
+Success = [urlData writeToFile:pathFileVideo atomically:YES];
 
-NSURL *url = [NSURL URLWithString:[@"http://127.0.0.1:1357/" stringByAppendingPathComponent:@"cameraImport"]];
-NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData timeoutInterval:60.0];
-[request setHTTPMethod:@"POST"];
-[request setHTTPBody:[NSJSONSerialization dataWithJSONObject:@{@"path": pathFileVideo?:@"", @"video": @(isFileVideo),} options:0 error:nil]];
-NSData *receivedData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil]?:[NSData data];
-NSDictionary *jsonResp = [NSJSONSerialization JSONObjectWithData:receivedData options:0 error:nil]?:@{};
+NSLog(@"%@",pathFileVideo);
+if(Success){
 
-if([jsonResp[@"status"]?:@NO boolValue]) {
-Alert(@"Saved!");
-} else {
-Alert(@"Save Failed!");
+      NSMutableArray *Items = [NSMutableArray new];
+    
+        [Items addObject:[NSURL fileURLWithPath:pathFileVideo isDirectory:NO]];
+    
+    
+        UIActivityViewController *Activity = [[UIActivityViewController alloc] initWithActivityItems:Items applicationActivities:nil];
+
+        [topMostController() presentViewController:Activity animated:YES completion:^{
+      
+            
+        }];
 }
-
+}
 
 
 });
@@ -180,7 +184,7 @@ void ShowAlert(NSString *BundleID_azf,NSString *trackName_azf,NSString *descript
 dispatch_async(dispatch_get_main_queue(), ^{
 
 
-UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Info Data" message:@"Choose Your Option" preferredStyle:UIAlertControllerStyleActionSheet];
+UIAlertController *alert = [UIAlertController alertControllerWithTitle:BundleID_azf message:@"Choose Your Option" preferredStyle:UIAlertControllerStyleActionSheet];
 @try {
 [alert.view setTintColor:[UIColor labelColor]];
 }@catch(NSException*e){
@@ -290,7 +294,7 @@ return CountryCode;
 return CountryCode;
 
 }
-
+NSDictionary *lookupX;
 %hook AMSURLRequest
 -(id) initWithRequest:(id)Request {
 %orig;
@@ -306,7 +310,9 @@ NSString *RequestString = [NSString stringWithFormat:@"%@",Request];
 NSString *LinkwithContry = [NSString stringWithFormat:@"https://amp-api.apps.apple.com/v1/catalog/%@/apps/", CountryId];
 
 
-if ([RequestString containsString:@"https://amp-api.apps.apple.com/v1/catalog/us/apps/"]) {
+// NSLog(@" url is : %@",RequestString);
+// https://amp-api-edge.apps.apple.com/v1/catalog/us/apps?ids=640364616%2C1483019344%2C1583570913%2C941143328%2C1189781891%2C1369018192%2C1456431209%2C640111933%2C1599745755%2C973482987&platform=iphone&additionalPlatforms=appletv%2Cipad%2Cmac%2Cwatch&extend=editorialArtwork%2CeditorialVideo%2CminimumOSVersion&l=en-US
+if ([RequestString containsString:@"https://amp-api-edge.apps.apple.com/v1/catalog/us/apps"]) {
 
 __block NSString *TrackID = ExportTrackId(@"apps/",@"?",RequestString);
 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -316,7 +322,46 @@ NSData *dataX = [NSData dataWithContentsOfURL:urlX];
 
 if (dataX) {
 
-NSDictionary *lookupX = [NSJSONSerialization JSONObjectWithData:dataX options:0 error:nil];
+lookupX = [NSJSONSerialization JSONObjectWithData:dataX options:0 error:nil];
+
+NSLog(@"lookupX : %@",lookupX);
+
+
+BundleID      = lookupX[@"results"][0][@"bundleId"];
+trackName     = lookupX[@"results"][0][@"trackName"];
+description   = lookupX[@"results"][0][@"description"];
+TrackIDJson   = lookupX[@"results"][0][@"TrackIDJson"];
+artworkUrl60  = lookupX[@"results"][0][@"artworkUrl60"];
+artworkUrl100 = lookupX[@"results"][0][@"artworkUrl100"];
+artworkUrl512 = lookupX[@"results"][0][@"artworkUrl512"];
+artistViewUrl = lookupX[@"results"][0][@"artistViewUrl"];
+
+if (BundleID)
+DidFindBundleID = YES;
+}
+NSLog(@"BundleID : %@",BundleID);
+NSLog(@"trackName : %@",trackName);
+NSLog(@"description : %@",description);
+NSLog(@"TrackIDJson : %@",TrackIDJson);
+NSLog(@"artworkUrl60 : %@",artworkUrl60);
+NSLog(@"artworkUrl100 : %@",artworkUrl100);
+NSLog(@"artworkUrl512 : %@",artworkUrl512);
+NSLog(@"artistViewUrl : %@",artistViewUrl);
+
+});
+
+}else if ([RequestString containsString:@"https://amp-api.apps.apple.com/v1/catalog/us/apps/"]) {
+
+__block NSString *TrackID = ExportTrackId(@"apps/",@"?",RequestString);
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+NSURL *urlX = [NSURL URLWithString:[NSString stringWithFormat:@"https://itunes.apple.com/lookup?id=%@",TrackID]];
+NSData *dataX = [NSData dataWithContentsOfURL:urlX];
+
+if (dataX) {
+
+lookupX = [NSJSONSerialization JSONObjectWithData:dataX options:0 error:nil];
+
 BundleID      = lookupX[@"results"][0][@"bundleId"];
 trackName     = lookupX[@"results"][0][@"trackName"];
 description   = lookupX[@"results"][0][@"description"];
@@ -341,7 +386,9 @@ NSData *dataX = [NSData dataWithContentsOfURL:urlX];
 
 if (dataX) {
 
-NSDictionary *lookupX = [NSJSONSerialization JSONObjectWithData:dataX options:0 error:nil];
+lookupX = [NSJSONSerialization JSONObjectWithData:dataX options:0 error:nil];
+
+
 BundleID = lookupX[@"results"][0][@"bundleId"];
 trackName     = lookupX[@"results"][0][@"trackName"];
 description   = lookupX[@"results"][0][@"description"];
@@ -418,6 +465,9 @@ return %orig;
 
 %new
 -(void)AFAppsInfoButtonTapped{
+
+
+
 @try {
 ShowAlert(BundleID,trackName,description,TrackIDJson,artworkUrl60,artworkUrl100,artworkUrl512,artistViewUrl);
 } @catch(NSException* e) {
